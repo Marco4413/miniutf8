@@ -93,31 +93,39 @@ namespace UTF8
     class StringView
     {
     public:
-        std::string& Ref;
-
-    public:
         explicit StringView(std::string& str)
-            : Ref(str) { }
+            : m_Ref(str) { }
+
+        StringView(const StringView& other)
+            : StringView(other.m_Ref) { }
 
         size_t Length() const;
-        std::u32string Decode() const { return UTF8::Decode(Ref); }
+        std::u32string Decode() const { return UTF8::Decode(m_Ref); }
+
+        const std::string& GetRef() const { return m_Ref; }
+        std::string& GetRef() { return m_Ref; }
+
+        StringView& operator=(const StringView& other) { m_Ref = other.m_Ref; return *this; }
 
         StringView& Erase(size_t pos, size_t len);
 
         StringView& Insert(size_t pos, const std::string& str) { return Insert(pos, str.c_str(), str.length()); }
-        StringView& Insert(size_t pos, const StringView& str) { return Insert(pos, str.Ref); }
+        StringView& Insert(size_t pos, const StringView& str) { return Insert(pos, str.m_Ref); }
         StringView& Insert(size_t pos, const std::string& str, size_t subpos, size_t sublen = -1);
-        StringView& Insert(size_t pos, const StringView& str, size_t subpos, size_t sublen = -1) { return Insert(pos, str.Ref, subpos, sublen); }
+        StringView& Insert(size_t pos, const StringView& str, size_t subpos, size_t sublen = -1) { return Insert(pos, str.m_Ref, subpos, sublen); }
         StringView& Insert(size_t pos, const char* s) { return Insert(pos, s, std::strlen(s)); }
         StringView& Insert(size_t pos, const char* s, size_t n);
         StringView& Insert(size_t pos, size_t n, char c) { return Insert(pos, std::string(n, c)); }
 
         StringView& Replace(size_t pos, size_t len, const std::string& str) { return Replace(pos, len, str, 0); }
-        StringView& Replace(size_t pos, size_t len, const StringView& str) { return Replace(pos, len, str.Ref); }
+        StringView& Replace(size_t pos, size_t len, const StringView& str) { return Replace(pos, len, str.m_Ref); }
         StringView& Replace(size_t pos, size_t len, const std::string& str, size_t subpos, size_t sublen = -1);
         StringView& Replace(size_t pos, size_t len, const char* s) { return Replace(pos, len, s, std::strlen(s)); }
         StringView& Replace(size_t pos, size_t len, const char* s, size_t n);
         StringView& Replace(size_t pos, size_t len, size_t n, char c) { return Replace(pos, len, std::string(n, c)); }
+
+    private:
+        std::string& m_Ref;
     };
 }
 
@@ -211,14 +219,14 @@ std::u32string UTF8::Decode(const std::string& str)
 size_t UTF8::StringView::Length() const
 {
     size_t len = 0;
-    StringDecoder decoder(Ref);
+    StringDecoder decoder(m_Ref);
     for (; decoder; decoder.Next(), ++len);
     return len;
 }
 
 UTF8::StringView& UTF8::StringView::Erase(size_t pos, size_t len)
 {
-    StringDecoder decoder(Ref);
+    StringDecoder decoder(m_Ref);
 
     for (size_t i = 0; i < pos && decoder; decoder.Next(), ++i);
     const char* eraseStart = decoder.GetCursor();
@@ -226,9 +234,9 @@ UTF8::StringView& UTF8::StringView::Erase(size_t pos, size_t len)
     for (size_t i = 0; i < len && decoder; decoder.Next(), ++i);
     const char* eraseEnd = decoder.GetCursor();
 
-    size_t erasepos = eraseStart - Ref.c_str();
+    size_t erasepos = eraseStart - m_Ref.c_str();
     size_t eraselen = eraseEnd - eraseStart;
-    Ref.erase(erasepos, eraselen);
+    m_Ref.erase(erasepos, eraselen);
     return *this;
 }
 
@@ -249,12 +257,12 @@ UTF8::StringView& UTF8::StringView::Insert(size_t pos, const std::string& str, s
 
 UTF8::StringView& UTF8::StringView::Insert(size_t pos, const char* s, size_t n)
 {
-    StringDecoder decoder(Ref);
+    StringDecoder decoder(m_Ref);
     for (size_t i = 0; i < pos && decoder; decoder.Next(), ++i);
 
     const char* insertCursor = decoder.GetCursor();
-    size_t insertAt = insertCursor-Ref.c_str();
-    Ref.insert(insertAt, s, n);
+    size_t insertAt = insertCursor-m_Ref.c_str();
+    m_Ref.insert(insertAt, s, n);
     return *this;
 }
 
