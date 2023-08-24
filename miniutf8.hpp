@@ -84,7 +84,9 @@ namespace UTF8
     };
 
     std::u32string Decode(const std::string& str);
-    
+
+    size_t Length(const std::string& str);
+
     // A view on an UTF-8 encoded std::string.
     // This class allows for string manipulation on encoded strings,
     //  which means that characters that span more than one byte are treated accordingly.
@@ -99,7 +101,7 @@ namespace UTF8
         StringView(const StringView& other)
             : StringView(other.m_Ref) { }
 
-        size_t Length() const;
+        size_t Length() const { return UTF8::Length(m_Ref); }
         std::u32string Decode() const { return UTF8::Decode(m_Ref); }
 
         const std::string& GetRef() const { return m_Ref; }
@@ -216,10 +218,10 @@ std::u32string UTF8::Decode(const std::string& str)
     return decoded;
 }
 
-size_t UTF8::StringView::Length() const
+size_t UTF8::Length(const std::string& str)
 {
     size_t len = 0;
-    StringDecoder decoder(m_Ref);
+    StringDecoder decoder(str);
     for (; decoder; decoder.Next(), ++len);
     return len;
 }
