@@ -33,6 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include <cinttypes>
 #include <cstring>
 #include <string>
+#include <string_view>
 #endif // MINIUTF8_EXT_INCLUDE
 
 namespace UTF8
@@ -53,7 +54,7 @@ namespace UTF8
     constexpr char32_t NOT_A_CHARACTER = 0x10FFFF;
 
     std::string Encode(char32_t ch);
-    std::string Encode(const std::u32string& str);
+    std::string Encode(std::u32string_view str);
 
     // A class which enables Decoding of an UTF-8 encoded string.
     // Also useful to iterate over character when parsing files.
@@ -63,10 +64,10 @@ namespace UTF8
         StringDecoder(const char* begin, const char* end)
             : m_Cursor(begin > end ? end : begin), m_End(end) { }
 
-        StringDecoder(const std::string& str, size_t offset)
-            : StringDecoder(str.c_str()+offset, str.c_str()+str.length()) { }
+        StringDecoder(std::string_view str, size_t offset)
+            : StringDecoder(str.data()+offset, str.data()+str.length()) { }
 
-        StringDecoder(const std::string& str)
+        StringDecoder(std::string_view str)
             : StringDecoder(str, 0) { }
         
         const char* GetCursor() const { return m_Cursor; }
@@ -83,9 +84,9 @@ namespace UTF8
         const char* const m_End;
     };
 
-    std::u32string Decode(const std::string& str);
+    std::u32string Decode(std::string_view str);
 
-    size_t Length(const std::string& str);
+    size_t Length(std::string_view str);
 
     // A view on an UTF-8 encoded std::string.
     // This class allows for string manipulation on encoded strings,
@@ -162,7 +163,7 @@ std::string UTF8::Encode(char32_t ch)
     return encoded;
 }
 
-std::string UTF8::Encode(const std::u32string& str)
+std::string UTF8::Encode(std::u32string_view str)
 {
     std::string encoded;
     encoded.reserve(str.length());
@@ -209,7 +210,7 @@ char32_t UTF8::StringDecoder::Next()
     return codepoint;
 }
 
-std::u32string UTF8::Decode(const std::string& str)
+std::u32string UTF8::Decode(std::string_view str)
 {
     std::u32string decoded;
     StringDecoder decoder(str);
@@ -218,7 +219,7 @@ std::u32string UTF8::Decode(const std::string& str)
     return decoded;
 }
 
-size_t UTF8::Length(const std::string& str)
+size_t UTF8::Length(std::string_view str)
 {
     size_t len = 0;
     StringDecoder decoder(str);

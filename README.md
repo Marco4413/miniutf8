@@ -2,7 +2,7 @@
 
 An [stb-style](https://github.com/nothings/stb) C++ library which allows easy UTF-8 Encoded String manipulation.
 
-This library should work on C++11 since `std::u32string` and `char32_t` were introduced.
+This library should work on C++17 since `std::u32string` and `std::string_view` were a thing.
 
 ### How to use
 
@@ -22,6 +22,7 @@ Header:
 #include <cinttypes>
 #include <cstring>
 #include <string>
+#include <string_view>
 
 // MINIUTF8_EXT_INCLUDE disables includes from miniutf8
 //  so that it does not include files inside a namespace.
