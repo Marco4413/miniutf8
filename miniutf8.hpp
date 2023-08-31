@@ -26,8 +26,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 // Put this line in a .cpp file
 // #define MINIUTF8_IMPLEMENTATION
 
-#ifndef _MINIUTF8_HPP
+// MINIUTF8_NO_GUARDS tells miniutf8 to ignore include guards.
+#if defined(MINIUTF8_NO_GUARDS) || !defined(_MINIUTF8_HPP)
+
+#ifdef MINIUTF8_NO_GUARDS
+#undef MINIUTF8_NO_GUARDS
+#else // MINIUTF8_NO_GUARDS
 #define _MINIUTF8_HPP
+#endif // MINIUTF8_NO_GUARDS
 
 #ifndef MINIUTF8_EXT_INCLUDE
 #include <cinttypes>
